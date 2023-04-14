@@ -1,0 +1,175 @@
+---
+title: "Projeto - Amostragem Estratificada"
+author: ' Rafael Santana - 180026798'
+date: "23/10/2020"
+output:
+  pdf_document: default 
+---
+
+## Exercício 53 - Lista 3
+
+a) Estratificamos uma população de tamanho N=424 do subgênero "Natural e Vegetariana" do gênero "Gastronomia e Culinária". Dividimos em três estratos, os quais foram capa dura (N_1 = 44), capa comum (N_2 = 133) e kindle (N_3 = 247):
+
+```{r cars, echo=TRUE}
+N <- 424
+N_1 <- 44    
+N_2 <- 133  
+N_3 <- 247   
+```
+
+b) Utilizando a alocação proporcional, retiramos uma amostra de 40 livros:
+
+```{r pressure, echo=TRUE}
+amostra <- read_excel("C:/Users/jgararuna/Downloads/amostragem_estratificada.xlsx")
+n <- 40
+n_1 <- n*(N_1/N)  #amostra do estrato 1 = 4
+set.seed(5)
+amostra_1 <- sample(seq(1:44),4) #9 30 39 12
+
+n_2 <- n*(N_2/N)  #amostra do estrato 2 = 13
+set.seed(6)
+amostra_2 <- sample(seq(1:133),13) #81 124  35  50 105 126 122  97  64   8  80 112  12
+
+n_3 <- n*(N_3/N)  #amostra do estrato 3 = 23
+set.seed(7)
+amostra_3 <- sample(seq(1:247),23) #245  98  29  18  60 192  82 234  40 110  41  55 182  23 106  20 130   3 226  73 146  67 225
+```
+
+Então, temos uma amostra do estrato 1 (capa dura) de tamanho 4, uma amostra do estrato 2 (capa comum) de tamanho 13, e uma amostra do estrato 3 (kindle) de tamanho 23.
+
+c)  Agora vamos calcular a estimativa pontual para o preço médio do gênero de livro selecionado e o seu
+respectivo intervalo com 95% de confiança:
+
+```{r pressure, echo=TRUE}
+amostra$preco <- as.numeric(amostra$preco)
+amostra_1 <- amostra %>% filter (amostra$'estrato' == "Capa Dura") #CAPA DURA
+amostra_2 <- amostra %>% filter (amostra$'estrato' == "Capa Comum") #CAPA COMUM
+amostra_3 <- amostra %>% filter (amostra$'estrato' == "Kindle") #KINDLE
+
+#média amostral do estrato h:
+yh_1 <- sum(amostra_1$'preco')/n_1
+yh_2 <- sum(amostra_2$'preco')/n_2
+yh_3 <- sum(amostra_3$'preco')/n_3
+
+#estimador do total populacional:
+t_str <- (N_1*yh_1) + (N_2*yh_2) + (N_3*yh_3) 
+
+#estimador da média populacional:
+y_str <- t_str/N #26.37225
+
+#Variância amostral do estrato h:
+var_1 <- var(amostra_1$preco)
+var_2 <- var(amostra_2$preco)
+var_3 <- var(amostra_3$preco)
+
+var_str <- ((N_1/N)^2)*((N_1 - n_1)/N_1)*(var_1/n_1) + ((N_2/N)^2)*((N_2 - n_2)/N_2)*(var_2/n_2) + ((N_3/N)^2)*((N_3 - n_3)/N_3)*(var_3/n_3)
+
+#intervalo de 95% de confiança:
+IC_LEFT_p <-  y_str - (1.96*sqrt(var_str)) #21.29233
+IC_RIGHT_p <- y_str + (1.96*sqrt(var_str)) #31.45217
+```
+
+Portanto, a estimativa pontual para o preço médio é de 26,37, com um intervalo de confiança de (21,29233 ; 31.45217) com 95% de confiança.
+
+d) Agora vamos calcular a estimativa pontual para o número médio de páginas do gênero de livro selecionado e o seu respectivo intervalo com 95% de confiança:
+
+```{r pressure, echo=TRUE}
+amostra$`numero de paginas` <- as.numeric(amostra$`numero de paginas`)
+amostra_1 <- amostra %>% filter (amostra$'estrato' == "Capa Dura") #CAPA DURA
+amostra_2 <- amostra %>% filter (amostra$'estrato' == "Capa Comum") #CAPA COMUM
+amostra_3 <- amostra %>% filter (amostra$'estrato' == "Kindle") #KINDLE
+
+#média amostral do estrato h:
+yh_1 <- sum(amostra_1$'numero de paginas', na.rm = TRUE)/n_1
+yh_2 <- sum(amostra_2$'numero de paginas', na.rm = TRUE)/n_2
+yh_3 <- sum(amostra_3$'numero de paginas', na.rm = TRUE)/n_3
+
+#estimador do total populacional:
+t_str <- (N_1*yh_1) + (N_2*yh_2) + (N_3*yh_3) 
+
+#estimador da média populacional:
+y_str <- t_str/N #116.55
+
+#Variância amostral do estrato h: 
+var_1 <- var(amostra_1$'numero de paginas', na.rm = TRUE)
+var_2 <- var(amostra_2$'numero de paginas', na.rm = TRUE)
+var_3 <- var(amostra_3$'numero de paginas', na.rm = TRUE)
+
+var_str <- ((N_1/N)^2)*((N_1 - n_1)/N_1)*(var_1/n_1) + ((N_2/N)^2)*((N_2 - n_2)/N_2)*(var_2/n_2) + ((N_3/N)^2)*((N_3 - n_3)/N_3)*(var_3/n_3)
+
+#intervalo de 95% de confiança:
+IC_LEFT_np <-  y_str - (1.96*sqrt(var_str)) #86.63978
+IC_RIGHT_np <- y_str + (1.96*sqrt(var_str)) #146.4602
+```
+
+Portanto, a estimativa pontual para o número médio de páginas é de 116,55, com um intervalo de confiança de (86,63978 ; 146,4602) com 95% de confiança.
+
+e) Compare os resultados de (c) e (d) com os resultados obtidos em AAS. A estratificação
+aumentou a precisão de sua estimativa?
+
+Vamos comparar qual amostragem é mais precisa calculando a amplitude dos intervalos de confiança, no intuito de compará-la em relação à média:
+
+Para a AAS, temos:
+
+* Preço: amplitude de 19,34598. 
+
+```{r pressure, echo=TRUE}
+amplitude_p_aas = 43.43299 - 24.08701 #19.34598
+43.43299 - 33.76 = 9.67299
+33.76 - 24.08701 = 9.67299
+```
+
+* Número de páginas: amplitude de 66,8034.
+
+```{r pressure, echo=TRUE}
+amplitude_np_aas = 183.9119 - 117.1085 #66.8034
+183.9119 - 150.5102 = 33.4017
+150.5102 - 117.1085 = 33.4017
+```
+
+Para a Amostragem Estratificada, temos:
+
+* Preço: amplitude de 10,15984.
+
+```{r pressure, echo=TRUE}
+amplitude_p_str = 31.45217 - 21.29233 #10.15984
+31.45217 - 26.37225 = 5.07992
+26.37225 - 21.29233 = 5.07992
+```
+
+* Número de páginas: amplitude de 59,82042.
+
+```{r pressure, echo=TRUE}
+amplitude_np_str = 146.4602 - 86.63978 #59.82042
+146.4602 - 116.55 = 29.9102
+116.55 - 86.63978 = 29.9102
+```
+
+Comparando a média em relação à amplitude de cada uma, notamos que na Amostragem estratificada temos um intervalo de confiança mais preciso.
+
+f)  Agora vamos estimar as variâncias (em relação ao preço e ao número de páginas) para cada estrato e encontrar a alocação ótima para amostragem de 40 livros:
+
+```{r pressure, echo=TRUE}
+#em relação ao preço:
+var_1p <- var(amostra_1$preco)
+var_2p <- var(amostra_2$preco)
+var_3p <- var(amostra_3$preco)
+
+n_1p <- ((N_1*var_1p)/((N_1*var_1p)+(N_2*var_2p)+(N_3*var_3p)))*n #7.424862 = 7
+n_2p <- ((N_2*var_2p)/((N_1*var_1p)+(N_2*var_2p)+(N_3*var_3p)))*n #13.68429 = 14
+n_3p <- ((N_3*var_3p)/((N_1*var_1p)+(N_2*var_2p)+(N_3*var_3p)))*n #18.89084 = 19
+
+#em relação ao número de páginas:
+var_1np <- var(amostra_1$`numero de paginas`, na.rm = TRUE)
+var_2np <- var(amostra_2$`numero de paginas`, na.rm = TRUE)
+var_3np <- var(amostra_3$`numero de paginas`, na.rm = TRUE)
+
+n_1np <- ((N_1*var_1np)/((N_1*var_1np)+(N_2*var_2np)+(N_3*var_3np)))*n #0.6602499 = 1
+n_2np <- ((N_2*var_2np)/((N_1*var_1np)+(N_2*var_2np)+(N_3*var_3np)))*n #12.22208 = 12
+n_3np <- ((N_3*var_3np)/((N_1*var_1np)+(N_2*var_2np)+(N_3*var_3np)))*n #27.11767 = 27
+
+```
+
+Portanto, temos, para a variável preço, uma alocação ótima que resultou em: tamanho 7 para o estrato 1, tamanho 14 para o estrato 2 e tamanho 19 para o estrato 3. E para a variável número de páginas, temos uma alocação ótima que resultou em: tamanho 1 para o estrato 1, tamanho 12 para o estrato 2 e tamanho 27 para o estrato 3. 
+
+Com isso, podemos dizer que a alocação ótima se difere da alocação proporcional, tanto em relação à variável preço quanto à variável número de páginas.

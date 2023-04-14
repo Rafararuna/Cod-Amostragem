@@ -1,0 +1,315 @@
+---
+title: "Prova 1"
+author: " Rafael Santana Araruna - 180026798"
+date: "15/10/2020"
+output: pdf_document
+---
+
+```{r}
+library(tidyverse)
+```
+
+## Questão 1
+
+a) A população alvo é composta por livros do subgênero "Natural e Vegetariana" do gênero "Gastronomia e Culinária". Este subgênero possui 24 páginos de livros na lista, totalizando 373 observações, número o qual representa o parâmetro N. Portanto, nossa unidade amostral é o nosso subgênero "Natural e Vegetariana" e a unidade observacional seriam os 50 livros que compõem esse subgênero. Acerca do cadastro, coletamos as seguintes informações sobre a unidade amostral: edição, preço, número de páginas e formato.
+
+Para tirar uma amostra aleatória simples (AAS) de tamanho 50, usaremos o comando "sample":
+
+```{r, echo=TRUE}
+set.seed(2)
+sample(seq(1:373), 50)
+```
+
+A coleta dos dados da amostra demorou consideravelmente, pois tivemos problema com a amostra que tiramos. Quando estávamos passando pra planilha, percebemos que alguns livros da amostra não possuiam todas as informações necessárias, como o número de páginas. Para alguns livros com este problema, solucionamos achando essas informação faltante em outros sites. Porém, não encontramos alguns livros em outros sites, pois eles eram ebooks e, pelo visto, só eram vendidos na Amazon. Dessa forma, para solucionar esses problema, no caso em que não tinha página, colocamos como missing (NA). Outra Situação que lidamos foi sobre a ordem dos livros na página da Amazon, que era alterada conforme a popoularidade no dia, pois era o filtro que estávamos utilizando. Dado que isso aconteceu,  tivemos que coletar tudo na mesma tarde, para que a amostra fosse igual para todos os membros do grupo.
+
+Uma outra observação é que, para os livros que possuiam dois formatos, utilizamos o seguinte código para sortear o formato de maneira aleatória: 
+
+```{r, echo=TRUE}
+x <- c(1,2)
+sample(x, 1)
+
+```
+
+Escrevemos nossa amostra em uma planilha:
+
+```{r, echo=TRUE}
+library(readxl)
+amostra <- read_excel("C:/Users/jgararuna/Downloads/Rafael Santana Araruna-180026798-Amostra.xlsx")
+```
+
+
+Fazendo agora uma breve análise descritiva das variáveis:
+
+* Edição 
+
+```{r, echo=TRUE}
+amostra$Edicao <- as.factor(amostra$Edicao)
+Fr<-table(amostra$Edicao)
+Pr<-as.data.frame(round(prop.table(Fr), digits=4)*100)
+colnames(Pr)<-c("Var1", "Pr")
+comp<-merge(Fr, Pr, by="Var1")
+comp$Pr<-paste(gsub("\\.",",",comp$Pr), "%", sep= '')
+
+ggplot(comp, aes(x=Var1, y=Freq, label=Pr)) +
+  geom_bar(stat="identity", fill="#A11D21", width = 0.5) +
+  geom_text(vjust=-0.5, size=4)+
+  labs(x="Edição", y="Frequência") +
+  scale_y_discrete(limits = c(seq(0,60,10))) +
+  expand_limits(y = c(0,60)) +
+  theme_bw() 
+```
+  
+Analisando o gráfico acima, podemos notar que quase toda a amostra tem edição 1, representando 98% da amostra, ou seja, 49 observações, e apenas uma observação com edição 2 (2%), cujo livro é o "Diário de uma vegana 2: O Despertar".
+
+* Preço
+
+```{r, echo=TRUE}
+amostra$Preco <- as.numeric(amostra$Preco)
+summary(amostra$Preco)
+sd(amostra$Preco)
+ggplot(amostra, aes(x= "", y= Preco)) +
+  geom_boxplot(fill=c("#A11D21"), width = 0.5) +
+  guides(fill=FALSE) +
+  stat_summary(fun.y="mean", geom="point", shape=23, size=3, fill="white")+
+  labs(x="", y="Preço")+
+  theme_bw() +
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        panel.border = element_blank(),
+        axis.line.y = element_line(colour = "black"))
+```
+
+A partir da análise do gráfico e da tabela acima, podemos observar uma média de 33,76, com um desvio  padrão de 37,501. Além disso, tem-se um mínimo de 1,99 (Guerreiro Vegano), e um máximo de 200 (A Saúde na Panela), sendo um dos outliers presentes na análise.
+
+* Número de páginas 
+
+```{r, echo=TRUE}
+summary(amostra$`Numero de paginas`)
+sd(amostra$`Numero de paginas`, na.rm = TRUE)
+ggplot(amostra, aes(x= "", y= `Numero de paginas`)) +
+  geom_boxplot(fill=c("#A11D21"), width = 0.5) +
+  guides(fill=FALSE) +
+  stat_summary(fun.y="mean", geom="point", shape=23, size=3, fill="white")+
+  labs(x="", y="Número de páginas")+
+  theme_bw() +
+  theme(axis.title.y=element_text(colour="black", size=12),
+        axis.title.x = element_text(colour="black", size=12),
+        axis.text = element_text(colour = "black", size=9.5),
+        panel.border = element_blank(),
+        axis.line.y = element_line(colour = "black"))
+```
+
+Observando o gráfico e a tabela acima, podemos observar uma média de 150,5, com um desvio  padrão de 129,4944. Além disso, tem-se um mínimo de 18 páginas (Macarrão), e um máximo de 504 páginas (O Grande Livro Da Cozinha Vegana), sendo um dos 3 outliers presentes na análise.
+
+* Formato
+
+```{r, echo=TRUE}
+amostra$Formato <- as.factor(amostra$Formato)
+Fr<-table(amostra$Formato)
+Pr<-as.data.frame(round(prop.table(Fr), digits=4)*100)
+colnames(Pr)<-c("Var1", "Pr")
+comp<-merge(Fr, Pr, by="Var1")
+comp$Pr<-paste(gsub("\\.",",",comp$Pr), "%", sep= '')
+
+ggplot(comp, aes(x=Var1, y=Freq, label=Pr)) +
+  geom_bar(stat="identity", fill="#A11D21", width = 0.5) +
+  geom_text(vjust=-0.5, size=4)+
+  labs(x="Formato", y="Frequência") +
+  scale_y_discrete(limits = c(seq(0,60,10))) +
+  expand_limits(y = c(0,60)) +
+  theme_bw() 
+```
+
+Analisando o gráfico acima, nota-se que mais da metade dos livros possuem o formato kindle, com um total de 27 observações (54% da amostra). Em seguida, percebe-se um total de 18 livros com capa comum, representando 36% da amostra. Por fim, observa-se 5 livros com capa dura, ou seja, 10% da amostra. Importante notar a presença de uma informação faltante, cujo livro é "Comer saudável: um estilo de vida, não um dever".
+
+b) O estimador pontual para o preço médio é a média amostral, que é calculado da seguinte forma:
+
+```{r, echo=TRUE}
+amostra$Preco <- as.numeric(amostra$Preco)
+soma_1 <- sum(amostra$Preco)
+n_1 <- 50
+media_1 <- soma_1/n_1 #33.76
+```
+  
+  Portanto, o preço médio da amostra é de 33.76.
+  
+  E calculamos o intervalo de confiança com 95% da seguinte forma:
+  
+```{r, echo=TRUE}
+N_1 <- 373
+v_1 <- var(amostra$Preco) #1406.325
+IC.LEFT_1 <- media_1 - (1.96*sqrt(1-(n_1/N_1))*((sqrt(v_1))/(sqrt(n_1)))) #24.08701
+IC.RIGHT_1 <- media_1 + (1.96*sqrt(1-(n_1/N_1))*((sqrt(v_1))/(sqrt(n_1)))) #43.43299
+```
+  
+ Portanto, temos um intervalo de confiança de (24,08701 ; 43,43299)
+
+c) O estimador pontual para o número médio de páginas é a média amostral, que é calculado da seguinte forma:
+  
+```{r, echo=TRUE}
+soma_1.2 <- sum(amostra$`Numero de paginas`, na.rm = TRUE)
+media_1.2 <- soma_1.2/(n_1 -1) #150.5102
+```  
+  
+  Portanto, o número médio de páginas da amostra é de 150,5102.
+  
+  E calculamos o intervalo de confiança com 95% da seguinte forma:
+  
+```{r, echo=TRUE}
+v_1.2 <- var(amostra$`Numero de paginas`, na.rm = TRUE) #16768.8
+IC.LEFT_1.2 <- media_1.2 - (1.96*sqrt(1-(n_1/N_1))*((sqrt(v_1.2))/(sqrt(n_1)))) #117.1085
+IC.RIGHT_1.2 <- media_1.2 + (1.96*sqrt(1-(n_1/N_1))*((sqrt(v_1.2))/(sqrt(n_1)))) #183.9119
+```
+
+ Portanto, temos um intervalo de confiança de (117,1085 ; 183,9119)
+
+d) Muitas pessoas interpretam o intervalo de confiança com 95% como se 95% da amostra estivesse dentro daquele intervalo, mas não é isso. Essas estimativas de intervalo que achamos para a variável preço, nos informa que temos 95% de "chance" do intervalo conter o verdadeiro valor da média populacional. Em outras palavras, se produzirmos diversos intervalos de confiança provenientes de diferentes amostras independentes de mesmo tamanho, podemos esperar que, aproximadamente, 95% destes intervalos devem conter o verdadeiro valor da média populacional. Isso vale, de forma análoga, para a variável número de páginas.
+
+A razão pela qual usamos 95%, é porque, se tivéssemos estudado toda a população, nossa confiança seria total: 100%. Quando fazemos um estudo, é praticamente impossível que consigamos abordar toda uma população, pois Seria gasto muito tempo, o custo seria mais caro, e ainda assim teria a possibilidade de alguém ficar de fora. Dessa forma, ao invés de se estimar o preço médio de todos os livros da população, estima-se um intervalo de estimativas prováveis. 
+
+e)  De forma geral, a amostragem aleatória simples é utilizada para remover qualquer viés de seleção, porém um possível erro de amostragem poderia estar relacionado com a falta de representatividade da amostra, que não contempla toda a variabilidade da população. A melhor forma de reduzir o erro de amostragem seria aumentar o tamanho amostral.
+
+
+## Questão 2
+
+a) Vamos dividir as 900 observações em três estratos: estrato 1 seriam as casas, estrato 2 seriam os apartamentos e o estrato 3 seriam os condomínios. Para calcular o tamanho de cada estrato usamos a Alocação Ótima de Neyman e, além disso, consideramos a proporção dos desvios.
+
+Assim, sabendo que σ1 = σ1, σ2 = σ1/2 e σ3 = σ1/2, conseguimos calcular o tamanho de cada estrato:
+
+```{r, echo=TRUE}
+N_2 <- 90000
+N1_2 <- 35000
+N2_2 <- 45000
+N3_2 <- 10000
+n_2 <- 900
+
+#estrato 1:
+n1_2 <- ((N1_2)/(N1_2 + (N2_2/2) + (N3_2/2)))*n_2 #504
+
+#estrato 2:
+n2_2 <- ((N2_2/2)/(N1_2 + (N2_2/2) + (N3_2/2)))*n_2 #324
+
+#estrato 3:
+n3_2 <- ((N3_2/2)/(N1_2 + (N2_2/2) + (N3_2/2)))*n_2 #72
+
+```
+
+Portanto, teremos uma amostra estratificada proporcional aos desvios, resultando em três estratos: 504 casas, 324 apartamentos e 72 condomínios.
+
+b) Para resolver o item, primeiro calculamos o tamanho dos estratos por alocação proporcional, e, em seguida, basta fazer a razão entre a variância proporcional da amostragem estratificada e a variância da amostra aleatória simples:
+
+```{r, echo=TRUE}
+n1 <- n_2*(N1_2/N_2) #350
+n2 <- n_2*(N2_2/N_2) #450
+n3 <- n_2*(N3_2/N_2) #100
+
+#variância proporcional da amostragem estratificada
+v.prop_str <- ((N1_2/N_2)^2)*((0.45*(1-0.45))/(n1)) + ((N2_2/N_2)^2)*((0.25*(1-0.25))/(n2)) + ((N3_2/N_2)^2)*((0.03*(1-0.03))/(n3)) #0.0002147037
+
+#variância da amostra aleatória simples
+parametro1_2 <- (N1_2/N_2)*0.45
+parametro2_2 <- (N2_2/N_2)*0.25
+parametro3_2 <- (N3_2/N_2)*0.03
+p_chapeu <- sum(parametro1_2,parametro2_2,parametro3_2) #0.3033333
+v.srs <- ((p_chapeu*(1 - p_chapeu))/(n_2)) #0.0002348025
+
+p <- v.prop_str/v.srs  #0.9144014
+```
+
+Portanto, a proporção p da população que implementou técnicas de economia de energia é de 0,9144. Assim, o ganho de eficiência é de 0,9144, isto é, necessita-se de 91,44% da amostra retirada em AAS para obter a mesma eficiência na Amostragem Estratificada.
+
+## Questão 3
+
+a) O peso amostral de cada unidade é dado pela razão (N/n):
+
+```{r, echo=TRUE}
+N_3 <- 100
+n_3 <- 30
+peso_3 <- N_3/n_3 #3.33
+```
+
+Portanto, temos um peso amostral de 3,33.
+
+b) A estimativa da média é dada por:
+
+```{r, echo=TRUE}
+amostra_3p <- c(8*peso_3,5*peso_3,2*peso_3,6*peso_3,6*peso_3,3*peso_3,8*peso_3,6*peso_3,10*peso_3,7*peso_3,15*peso_3,9*peso_3,15*peso_3,3*peso_3,5*peso_3,6*peso_3,7*peso_3,10*peso_3,14*peso_3,3*peso_3,4*peso_3,5*peso_3,10*peso_3,6*peso_3,14*peso_3,12*peso_3,7*peso_3,8*peso_3,12*peso_3,9*peso_3)
+soma_3 <- sum(amostra_3p)
+media_3 <- soma_3/(n_3*peso_3) #7.833333
+```
+
+Portanto, nossa estimativa da média é de 7,833.
+
+Agora, para calcular o total populacional basta fazer a soma da multiplicação do peso com cada valor amostral:
+
+```{r, echo=TRUE}
+amostra_3p <- c(8*peso_3,5*peso_3,2*peso_3,6*peso_3,6*peso_3,3*peso_3,8*peso_3,6*peso_3,10*peso_3,7*peso_3,15*peso_3,9*peso_3,15*peso_3,3*peso_3,5*peso_3,6*peso_3,7*peso_3,10*peso_3,14*peso_3,3*peso_3,4*peso_3,5*peso_3,10*peso_3,6*peso_3,14*peso_3,12*peso_3,7*peso_3,8*peso_3,12*peso_3,9*peso_3)
+total_pop <- sum(amostra_3p) #783.3333
+```
+
+Portanto, o total populacional é de 783,33.
+
+c) Vamos calcular agora o IC para o total populacional com 95% de confiança com n-1 graus de liberdade:
+
+```{r, echo=TRUE}
+amostra_3 <- c(8,5,2,6,6,3,8,6,10,7,15,9,15,3,5,6,7,10,14,3,4,5,10,6,14,12,7,8,12,9)
+v_3 <- var(amostra_3)
+v_total_pop <- (N_3^2)*(1-(n_3/N_3))*(v_3/n_3) #3155.364
+sd_3 <- sqrt(v_total_pop) #56.17263
+IC.LEFT_3 <- total_pop - (2.045*sd_3) #668.4603
+IC.RIGHT_3 <- total_pop + (2.045*sd_3) #898.2063
+```
+
+Portanto, temos um intervalo para o total populacional de (668,4603;898,2063).
+
+d) Calculando a margem de erro do IC do item c):
+
+```{r, echo=TRUE}
+ERRO.LEFT_3 <- total_pop - IC.LEFT_3 #114.873
+ERRO.RIGHT_3 <- IC.RIGHT_3 - total_pop #114.873
+margem_erro <- (114.8731/total_pop)*100 #14.66465%
+```
+
+Portanto, temos uma margem erro de 14,66%.
+
+A margem de erro representa a metade da largura do intervalo de confiança para uma mesma estatística. Ela nos informa a quantidade máxima na qual se espera que os resultados da amostra se diferenciem dos resultados da população total. Com isso, podemos dizer que quanto maior a margem de erro, menor a confiança dos resultados de uma pesquisa serem próximos dos valores reais para toda população. 
+
+
+## Questão 4
+
+a) Calculando o IC com 95% de confiança para a proporção π(200/400) de favoráveis ao
+projeto na população: 
+
+```{r, echo=TRUE}
+n_4 <- 400
+IC.LEFT_4 <- 0.5 - (1.96*sqrt(((1 - 0.5)*0.5)/n_4)) #0.451
+IC.RIGHT_4 <- 0.5 + (1.96*sqrt(((1 - 0.5)*0.5)/n_4)) #0.549
+```
+
+Portanto, temos um intervalo para a proporção π de (0,451;0,549).
+Pra achar esse resultado supomos que essa amostra é representativa em relação à população em estudo e, além disso, a amostra se aproxima da distribuição Z(Normal).
+
+b) Para saber qual é mais barato, vamos calcular o tamanho necessário do "n" para cada um casos:
+
+* Caso 1 (90% de confiança e erro de 2%)
+
+```{r, echo=TRUE}
+N_4 <- 2000
+n_4_1 <- (N_4*(1.65^2)*(1-0.5))/(((N_4-1))*(0.02^2)+((1.65^2)*0.5*(1-0.5))) #1839.247
+```
+
+Portanto, neste caso, o tamanho de amostra necessário é de 1840.
+
+* Caso 2 (95% de confiança e erro de 3%)   
+
+
+```{r, echo=TRUE}
+n_4_2 <- (N_4*(1.96^2)*(1-0.5))/(((N_4-1))*(0.03^2)+((1.96^2)*0.5*(1-0.5))) #1392.136
+```
+
+Portanto, neste caso, o tamanho de amostra necessário é de 1393.
+
+Assim, sabendo que o custo de amostragem para cada unidade é de 150,00, temos um custo de 276000 para o caso 1, e de 208950 para o caso 2. Dessa forma, concluimos que é mais barato o segundo caso.
+
+Analisando os dois casos, e sabendo que o caso 2 é mais barato, nota-se que diminuir o erro é mais caro do que aumentar o intervalo de confiança, de acordo com a distribuição Gaussiana.

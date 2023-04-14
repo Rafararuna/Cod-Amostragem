@@ -1,0 +1,143 @@
+---
+title: "Exercício 2 - Amostragem"
+author: Rafael Santana Araruna - 180026798
+date: "23/09/2020"
+output:
+  pdf_document: default
+  html_document:
+  df_print: paged
+---
+
+```{r}
+library(tidyverse) 
+```
+
+## QUESTÃO 29
+
+A figura contém a população de 100 retângulos. Sua meta é estimar a área total de todos os retângulos pegando uma amostra de 10 
+retâgulos.
+
+a) Selecione uma amostra intencional de 10 retângulos que vc achaque ira representar a pop de 100 retângulos. registre a área 
+(número de pequenos quadrados) para cada retângulo em sua amostra. Use sua amostra para estimar a area total. Explique o critério
+que você utilizou para escolher os retângulos.
+
+Resposta:
+
+Para escolher os retângulos, seguimos os seguintes passos:
+
+* dividimos os valores das áreas em 7 intervalos(1-10,11-20,21-30,31-40,41-50,51-60,61-100); 
+
+* decidimos selecionar nossa amostra com base na proporção de retângulos em cada intervalo, pois existe diferença na quantidade de retângulos por intervalos; 
+
+* pra escolher os retângulos, tiramos a média das áreas deles em cada intervalo, e selecionamos os retângulos com as áreas mais proximas da média; 
+
+* juntamos do 61-100, pois os últimos intervalos não tinham representatividade suficiente;
+
+
+Os intervalos foram:
+
+* 1-10 = 4,7,9,11,14,15,20,22,28,30,33,37,42,45,47,55,57,68,69,73,75,84,93,96,100 -> 25 pra 100 (nesse intervalo, selecionamos 3 retângulos, os quais foram os 42,7,68) 
+
+* 11-20 = 1,10,12,24,25,32,38,40,43,54,65,79,81,86,89 -> 15 pra 100  (nesse intervalo, selecionamos 1 retângulo, o qual foi o 81) 
+
+* 21-30 = 8,16,27,39,46,49,60,63,70,71,74,76,78,82,83,85,90,94 -> 18 pra 100 (nesse intervalo, selecionamos 2 retângulos, os quais foram os 94,71)
+
+* 31-40 = 3,5,21,35,36,44,52,72,88,91,95 -> 11 pra 100 (nesse intervalo, selecionamos 1 retângulo, o qual foi o 36)
+
+* 41-50 = 2,6,13,34,41,50,51,56,59,61,62,87,97 -> 13 pra 100 (nesse intervalo, selecionamos 1 retângulo, o qual foi o 13) 
+
+* 51-60 = 17,18,23,31,48,67,92,99 -> 8 pra 100 (nesse intervalo, selecionamos 1 retângulo, o qual foi o 67)
+
+* 61-100 = 19,26,29,53,58,64,66,77,80,98 -> 10 pra 100 (nesse intervalo, selecionamos 1 retângulo, o qual foi o 64)
+
+Para explicar a escolha das áreas, segue as médias dos intervalos respectivamente:
+
+```{r, echo=TRUE}
+x <- c(10,6,6,2,8,6,2,4,4,7,3,6,5,2,8,1,6,8,8,4,1,6,9,10,10)
+mean(x) #5,68
+y <- c(12,20,15,12,20,18,12,20,12,20,14,12,16,12,18)
+mean(y) #15,53
+z <- c(28,24,24,30,21,27,25,24,21,27,27,27,30,30,24,24,24,25)
+mean(z) #25,66
+r <- c(35,40,40,35,36,40,35,35,36,40,40)
+mean(r) #37,45
+p <- c(50,50,48,50,45,50,49,48,42,48,48,48,42)
+mean(p) #47,53
+b <- c(56,56,60,54,54,54,56,60)
+mean(b) #56,25
+t <- c(70,70,90,90,70,81,64,100,64,63)
+mean(t) #76,2
+```
+
+Portanto, as áreas escolhidas foram: 42,7,68,81,94,71,36,13,67,64 
+
+b) Encontre a variância da amostra para sua amostra intencional de 10 retângulos e forme uma estimativa de intervalo
+para a área total t.
+
+```{r, echo=TRUE}
+valores <- c(5,6,6,16,25,27,36,48,56,81)
+
+#Variância amostral
+v <- var(valores) #626.7111
+m <- mean(valores) #30.6
+
+#Estimativa do intervalo
+EI.LEFT <- 30.6 - (2.262*sqrt(1-(10/100))*((sqrt(v))/(sqrt(10))))  #13.61179
+EI.RIGHT <- 30.6 + (2.262*sqrt(1-(10/100))*((sqrt(v))/(sqrt(10)))) #47.58821
+
+```
+
+c) Agora pegue uma AAS de 10 retângulos. Use sua AAS para estimar a área total de todos os 100 retângulos, e encontre, à 95%, o 
+intervalo de confiança da área total.
+
+```{r, echo=TRUE}
+x <- seq(1:100)
+sample(x,10) #27 44 11 99 95 63 14 50 58 81
+valores <- c(24,40,2,60,40,24,8,50,70,16)
+
+#Estimativa da área total
+m <- mean(valores) #33.4 
+s <- var(valores) #502.2667
+
+#Intervalo de confiança
+EI_LEFT <- 33.4 - (2.262*sqrt(1-(10/100))*((sqrt(s))/(sqrt(10)))) #18.19169
+EI_RIGHT <- 33.4 + (2.262*sqrt(1-(10/100))*((sqrt(s))/(sqrt(10)))) #48.60831
+
+```
+
+d) Qual porcentagem dos intervalos calculado em b) inclui a área 
+total verdadeira de 3079? E sobre os intervalos de confiança de c)?
+
+Primeiramente, calculamos as medidas da população:
+```{r, echo=TRUE}
+x <- c(12,8,24,20,90,64,12,54,50,6,4,45,20,56,64,1,
+         35,24,90,5,1,6,16,25,10,56,7,12,48,8,30,40,
+         40,56,54,40,10,21,24,6,50,70,18,2,70,27,4,42,
+         6,2,3,21,42,35,24,54,28,40,50,8,25,10,12,60,
+         6,4,35,63,48,27,48,9,20,60,36,27,48,8,36,2,
+         12,6,50,24,27,18,15,20,12,49,81,100,24,48,
+         70,30,35,14,30,40)
+m <- mean(x) #30.79
+vp <- var(x) #524.41
+
+#Intervalo de confiança
+EIL <- 30.79 - (2.262*sqrt(1-(10/100))*((sqrt(vp))/(sqrt(10)))) #15.25006
+EIR <- 30.79 + (2.262*sqrt(1-(10/100))*((sqrt(vp))/(sqrt(10)))) #46.32994
+
+```
+
+Qual porcentagem dos intervalos calculado em b) inclui a área total verdadeira de 3079? 
+
+```{r, echo=TRUE}
+PB <- (47.58821-13.6117)/(46.32994-15.25006) #1.0932
+```
+
+Assim, concluímos que o intervalo amostral inclui a totalidade do intervalo populacional.
+
+Qual porcentagem dos intervalos calculado em c) inclui a área total verdadeira de 3079?
+
+```{r, echo=TRUE}
+PC <- (48.60831-18.19169)/(46.32994-15.25006) #0.9786595
+```
+
+Assim, concluímos que o intervalo amostral inclui 97.87% do intervalo populacional.

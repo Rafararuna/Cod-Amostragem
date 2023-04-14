@@ -1,0 +1,53 @@
+---
+title: "Exercício 4 - Amostragem"
+author: "Rafael Santana - 180026798"
+date: "11/10/2020"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+## Exercício 4.03
+
+Os engenheiros florestais desejam estimar a idade média das árvores em um povoamento. Determinar a idade é complicado, porque é preciso contar os anéis de uma árvore em um núcleo retirado da árvore. Em geral, pensamos, quanto mais velha a árvore, maior o diâmetro, e o diâmetro é fácil de medir. Os engenheiros florestais medem o diâmetro de todas as 1132 árvores e descobrem que a média da população é igual a 10,3. Eles então selecionam aleatoriamente 20 árvores para medição de idade.
+
+a) Desenhe um gráfico de dispersão de y vs x
+
+```{r, echo=TRUE}
+x <- c(12.0, 11.4, 7.9, 9.0, 10.5, 7.9, 7.3, 10.2, 11.7, 11.3, 5.7, 8.0, 10.3, 12.0, 9.2, 8.5, 7.0, 10.7, 9.3, 8.2) #diâmetro
+y <- c(125, 119, 83, 85, 99, 117, 69, 133, 154, 168, 61, 80, 114, 147, 122, 106, 82, 88, 97, 99) #idade
+plot(y,x,xlab = "Diâmetro", ylab = "Idade", col = "red", main = "Gráfico de Dispersão")
+```
+
+b) Estimar a idade média da população das árvores no povoamento usando a estimativa de razão e dar o erro padrão aproximado de sua estimativa.
+
+```{r, echo=TRUE}
+mp_diametro <- 10.3 #média populacional do diâmetro
+r <- mean(y)/mean(x) #11.41946
+t_y_razao <- r*(mp_diametro) #117.6204
+
+e_1 <- c((125 - (r*12))^2, (119 - (r*11.4))^2, (83 - (r*7.9))^2, (85 - (r*9))^2, (99 - (r*10.5))^2, (117 - (r*7.9))^2, (69 - (r*7.3))^2, (133 - (r*10.2))^2, (154 - (r*11.7))^2, (168 - (r*11.3))^2, (61 - (r*5.7))^2, (80 - (r*8))^2, (114 - (r*10.3))^2, (147 - (r*12))^2, (122 - (r*9.2))^2, (106 - (r*8.5))^2, (82 - (r*7))^2, (88 - (r*10.7))^2, (97 - (r*9.3))^2, (99 - (r*8.2))^2)
+n <- 20
+N <- 1132
+s_e2 <- (1/(n-1))*(sum(e_1)) #321.933
+erro_1 <- sqrt((1 - (n/N))*((mp_diametro/mean(x))^2)*(s_e2/n)) #4.354872
+```
+
+Portanto, temos que a estimativa da idade média da população das árvores no povoamento, usando a estimativa de razão (r = 11,41), é de 117,62, com um erro padrão de 4,35 .
+
+c) Repetir b) usando a estimativa de regressão
+
+```{r, echo=TRUE}
+cor_xy <- cor(x,y) #0.7816197
+Beta_chapeu <- (cor_xy*sd(y))/sd(x) #12.24966
+t_y_regressao <- mean(y) + Beta_chapeu*(mp_diametro - mean(x)) #118.3634
+
+n <- 20
+N <- 1132
+alpha_chapeu <- (mean(y) - (Beta_chapeu*(mean(x)))) #-7.808087
+e_2 <- c( (125 - (alpha_chapeu + (Beta_chapeu*12)))^2, (119 - (alpha_chapeu + (Beta_chapeu*11.4)))^2, (83 - (alpha_chapeu + (Beta_chapeu*7.9)))^2, (85 - (alpha_chapeu + (Beta_chapeu*9)))^2, (99 - (alpha_chapeu + (Beta_chapeu*10.5)))^2, (117 - (alpha_chapeu + (Beta_chapeu*7.9)))^2, (69 - (alpha_chapeu + (Beta_chapeu*7.3)))^2, (133 - (alpha_chapeu + (Beta_chapeu*10.2)))^2, (154 - (alpha_chapeu + (Beta_chapeu*11.7)))^2, (168 - (alpha_chapeu + (Beta_chapeu*11.3)))^2, (61 - (alpha_chapeu + (Beta_chapeu*5.7)))^2, (80 - (alpha_chapeu + (Beta_chapeu*8)))^2, (114 - (alpha_chapeu + (Beta_chapeu*10.3)))^2, (147 - (alpha_chapeu + (Beta_chapeu*12)))^2, (122 - (alpha_chapeu + (Beta_chapeu*9.2)))^2, (106 - (alpha_chapeu + (Beta_chapeu*8.5)))^2, (82 - (alpha_chapeu + (Beta_chapeu*7)))^2, (88 - (alpha_chapeu + (Beta_chapeu*10.7)))^2, (97 - (alpha_chapeu + (Beta_chapeu*9.3)))^2, (99 - (alpha_chapeu + (Beta_chapeu*8.2)))^2)
+sigma_chapeu_e2 <- (1/(n-2))*(sum(e_2)) #337.3848
+erro_2 <- sqrt((1 - (n/N))*(sigma_chapeu_e2/n)) #4.070774
+```
+
+Portanto, temos que a estimativa da idade média da população das árvores no povoamento, usando a estimativa de regressão, é de 118,36, com um erro padrão de 4,07.
